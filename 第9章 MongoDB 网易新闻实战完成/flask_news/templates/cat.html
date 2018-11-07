@@ -1,0 +1,18 @@
+{% extends 'home_base.html' %}
+{% block head %}
+<title>新闻类别页</title>
+{% endblock %}
+{% block content %}
+<h3>新闻类别>{{ name }}</h3>
+{% for obj in news_list %}
+<div class="list-news">
+    <div class="img-content">
+        <img src="{{ obj.img_url }}" alt="图片">
+    </div>
+    <div class="right-content">
+        <h3><a href="{{ url_for('detail', pk=obj.id) }}" >{{ obj.title }}</a></h3>
+        <small>{{ obj.created_at }}</small>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'admin/base.html' %}
+{% block title %}
+<title>新闻管理首页</title>
+{% endblock %}
+{% block content %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>编号</th>
+      <th>新闻标题</th>
+      <th>类别</th>
+      <th>添加时间</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for new_obj in page_data.items %}
+    <tr>
+      <td>{{ new_obj.id }}</td>
+      <td>{{ new_obj.title }}</td>
+      <td>{{ new_obj.news_type }}</td>
+      <td>{{ new_obj.created_at }}</td>
+      <td><a class="btn btn-info" href="{{ url_for('update', pk=new_obj.id) }}">修改</a>
+      <a class="btn btn-danger" href="javscript:;" data-url="{{ url_for('delete', pk=new_obj.id) }}">删除</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<nav>
+  <ul class="pagination">
+    {% if page_data.has_prev %}
+    <li><a href="{{ url_for('admin', page=page_data.prev_num) }}">&laquo;</a></li>
+    {% else %}
+    <li class="disabled"><a href="javscript:;">&raquo;</a></li>
+    {% endif %}
+    {% for page in page_data.iter_pages() %}
+    {% if page == page_data.page %}
+    <li class="active"><a href="javscript:;">{{ page }}</a></li>
+    {% else %}
+    <li><a href="{{ url_for('admin', page=page) }}">{{ page}}</a></li>
+    {% endif %}
+    {% endfor %}
+    {% if page_data.has_next %}
+    <li><a href="{{ url_for('admin', page=page_data.next_num ) }}">&raquo;</a></li>
+    {% else %}
+    <li class="disabled"><a href="javscript:;">&raquo;</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endblock %}
+{% block extrajs %}
+<script>
+  $(function(){
+    $('.btn-danger').on('click', function(){
+      var btn = $(this);
+      if(confirm('确定删除该记录吗？')){
+        $.post(btn.attr('data-url'), function(data){
+          if (data === 'yes'){
+            btn.parents('tr').hide();
+          }else{
+            alert('删除失败');
+          }
+        })
+      }
+    })
+  })
+</script>
+{% endblock  %}
