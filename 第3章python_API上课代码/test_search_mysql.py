@@ -6,27 +6,30 @@ class MysqlSearch(object):
         self.get_conn()
 
     def get_conn(self):
+        """获取连接"""
         try:
             self.conn = MySQLdb.connect(
                 host='127.0.0.1',
                 user='root',
-                passwd='',
-                db='news',
-                port=3308,
+                passwd='Zyy180926.',
+                db='school',
+                port=3306,
                 charset='utf8'
             )
         except MySQLdb.Error as e:
-            print('Error: %s' % e)
+            print('MysqlStartError: %s' % e)
 
     def close_conn(self):
+        """关闭连接"""
         try:
             if self.conn:
                 # 关闭链接
                 self.conn.close()
         except MySQLdb.Error as e:
-            print('Error: %s' % e)
+            print('MysqlStopError: %s' % e)
 
     def get_one(self):
+        """获取一条数据"""
         # 准备SQL
         sql = 'SELECT * FROM `news` WHERE `types` = %s ORDER BY `created_at` DESC;'
         # 找到cursor
@@ -34,6 +37,9 @@ class MysqlSearch(object):
         # 执行SQL
         cursor.execute(sql, ('百家', ))
         # print(dir(cursor))
+        # print(cursor.description)
+        # for k in cursor.description:
+        #     print(k[0])
         # 拿到结果
         rest = dict(zip([k[0] for k in cursor.description], cursor.fetchone()))
         # 处理数据
@@ -43,6 +49,7 @@ class MysqlSearch(object):
         return rest
 
     def get_more(self):
+        """获取多条数据"""
         # 准备SQL
         sql = 'SELECT * FROM `news` WHERE `types` = %s ORDER BY `created_at` DESC;'
         # 找到cursor
@@ -93,15 +100,19 @@ class MysqlSearch(object):
             # 执行sql
             # 提交数据到数据库
             cursor.execute(sql, ('标题11', '/static/img/news/01.png', '新闻内容5', '推荐', 1))
-            # cursor.execute(sql, ('标题12', '/static/img/news/01.png', '新闻内容6', '推荐', 1))
+            # cursor.execute(sql, ('标题12', '/static/img/news/01.png', '新闻内容6', '推荐', 1, 1))
             # 提交事务
             self.conn.commit()
         except :
-            print('error')
+            print('Translation Error Rollback')
             # 回滚事务
             self.conn.rollback()
         # 执行最后一条SQL影响的行数
         row_count = cursor.rowcount
+        cursor1 = self.conn.cursor()
+        cursor1.execute('select `title` from news')
+        print(cursor1.fetchall())
+        cursor1.close()
         # 关闭cursor和链接
         cursor.close()
         self.close_conn()
@@ -112,19 +123,23 @@ class MysqlSearch(object):
 
 def main():
     obj = MysqlSearch()
-    # rest = obj.get_one()
-    # print(rest['title'])
+    rest = obj.get_one()
+    print(rest['image'])
 
-    # rest = obj.get_more()
-    # for item in rest:
-    #     print(item)
-    #     print('------')
+    obj = MysqlSearch()
+    rest = obj.get_more()
+    for item in rest:
+        print(item)
+        print('------')
+    print('*'*20)
 
-    # rest = obj.get_more_by_page(2, 3)
-    # for item in rest:
-    #     print(item)
-    #     print('------')
+    obj = MysqlSearch()
+    rest = obj.get_more_by_page(2, 2)
+    for item in rest:
+        print(item)
+        print('------')
 
+    obj = MysqlSearch()
     rest = obj.add_one()
     print(rest)
 
